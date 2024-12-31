@@ -1,0 +1,24 @@
+# Python
+__pychache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# PyCharm
+.idea/
+*.iws
+.idea_modules/
+
+# Environment Variables
+.env
+
+# Logs
+*.log
+
+# System files
+.DS_Store
