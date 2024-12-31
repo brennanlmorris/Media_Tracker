@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="search-container">
+        <h2>Enter Company Name or Ticker</h2>
+        <form method="POST">
+            <input type="text" name="company" placeholder="e.g., Apple or AAPL">
+            <button type="submit">Analyze</button>
+        </form>
+    </div>
+{% endblock %}
