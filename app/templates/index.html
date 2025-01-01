@@ -13,4 +13,17 @@
             <button type="submit">Analyze</button>
         </form>
     </div>
+
+    {% if news_items %}
+        <div class="results-container">
+        <h3>Latest News</h3>
+        {% for item in news_items %}
+            <div class="news-item">
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.description }}</p>
+                <small>Published: {{ item.published_date }}</small>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
 {% endblock %}
