@@ -4,7 +4,12 @@
     <div class="search-container">
         <h2>Enter Company Name or Ticker</h2>
         <form method="POST">
-            <input type="text" name="company" placeholder="e.g., Apple or AAPL">
+            <label for="company">Company Name:</label>
+            <input type="text"
+                   id="company"
+                   name="company"
+                   placeholder="e.g., Apple or AAPL"
+                   aria-label="Company Name">
             <button type="submit">Analyze</button>
         </form>
     </div>
