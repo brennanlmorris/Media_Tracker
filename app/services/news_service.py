@@ -1,40 +1,47 @@
 from gnews import GNews
 import time
 
+
 class NewsService:
     def __init__(self):
         self.google_news = GNews(
             language='en',
             country='US',
             period='7d',
-            max_results=10
+            max_results=10,
+            proxy=None
         )
-        print("NewsService initialized") #debug print
 
     def get_company_news(self, company_name):
         try:
-            print(f"Starting news fetch for: {company_name}") #debug print
-            # Add small delay to avoid rate limiting
+            print(f"Attempting to fetch news for {company_name}...")
             time.sleep(1)
 
-            news_items = self.google_news.get_news(company_name)
-            print(f"Raw response: {news_items}") # See what we're getting back
+            # Try with different search formats
+            search_terms = [
+                company_name,  # Plain search
+                f'"{company_name}"',  # Exact match
+                f'{company_name} company news'  # Extended search
+            ]
 
-            if not news_items:
-                print("No news items returned from API")
-                return []
+            for term in search_terms:
+                print(f"Trying search term: {term}")
+                news_items = self.google_news.get_news(term)
 
-            processed_items = [{
-                'title': item.get('title', 'No title'),
-                'published_date': item.get('published date', 'No date'),
-                'description': item.get('description', 'No description'),
-                'url': item.get('url', 'no URL')
-            } for item in news_items]
+                if news_items:
+                    print(f"Found {len(news_items)} items with search term: {term}")
+                    return [{
+                        'title': item['title'],
+                        'published_date': item['published date'],
+                        'description': item['description'],
+                        'url': item['url']
+                    } for item in news_items]
+                else:
+                    print(f"No results for: {term}")
 
-            print(f"Processed {len(processed_items)} items")
-            return processed_items
+            print("No results found with any search term")
+            return []
 
         except Exception as e:
-            print(f"Error fetching news: {e}")
-            print(f"Error type: {type(e)}")
+            print(f"Error in news fetch: {str(e)}")
             return []
