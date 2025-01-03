@@ -2,27 +2,12 @@ from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 
 class SentimentService:
-    def __init__(self, model_path="ProsusAI/finbert"):
-        """
-        Loads the FinBERT model and tokenizer.
-
-        Args:
-            model_path: The path to the directory containing the FinBERT model files.
-        """
-        self.tokenizer = BertTokenizer.from_pretrained(model_path)
-        self.model = BertForSequenceClassification.from_pretrained(model_path)
+    def __init__(self, model_name="ProsusAI/finbert"):
+        self.tokenizer = BertTokenizer.from_pretrained(model_name)
+        self.model = BertForSequenceClassification.from_pretrained(model_name)
         self.model.eval()
 
     def analyze_sentiment(self, text):
-        """
-        Analyzes the sentiment of a given text using FinBERT.
-
-        Args:
-            text: The text to analyze.
-
-        Returns:
-            A dictionary containing the sentiment scores (positive, negative, neutral).
-        """
         inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
         with torch.no_grad():
             outputs = self.model(**inputs)
