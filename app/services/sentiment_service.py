@@ -2,7 +2,7 @@ from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 
 class SentimentService:
-    def __init__(self, model_path="app/models/finbert/"):
+    def __init__(self, model_path="ProsusAI/finbert"):
         """
         Loads the FinBERT model and tokenizer.
 

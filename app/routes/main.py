@@ -1,19 +1,17 @@
-from flask import Blueprint, render_template, request, jsonify
-from app import app
+from flask import Blueprint, render_template, request, jsonify, current_app
 from app.services.news_service import NewsService
-from app.services.sentiment_service import SentimentService
 
 main_bp = Blueprint('main_bp', __name__)
 
 news_service = NewsService()
-sentiment_service = SentimentService()
 
-@app.route("/")
+@main_bp.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/analyze", methods=["POST"])
+@main_bp.route("/analyze", methods=["POST"])
 def analyze():
+    sentiment_service = current_app.config['SENTIMENT_SERVICE']
     query = request.form.get("query")
     if not query:
         return jsonify({"error": "No query provided"}), 400
@@ -24,10 +22,13 @@ def analyze():
 
     processed_articles = []
     for article in articles:
+        sentiment = sentiment_service.analyze_sentiment(article['title'])
+
         processed_articles.append({
             "title": article['title'],
             "link": article['link'],
-            "published": article.get('published', 'Not available')
+            "published": article.get('published', 'Not available'),
+            "sentiment": sentiment
         })
 
     return jsonify(processed_articles)
