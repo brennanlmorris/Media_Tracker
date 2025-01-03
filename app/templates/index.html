@@ -3,27 +3,17 @@
 {% block content %}
     <div class="search-container">
         <h2>Enter Company Name or Ticker</h2>
-        <form method="POST">
-            <label for="company">Company Name:</label>
+        <form id="searchForm">
+            <label for="query">Company Name:</label>
             <input type="text"
-                   id="company"
-                   name="company"
+                   id="query"
+                   name="query"
                    placeholder="e.g., Apple or AAPL"
                    aria-label="Company Name">
             <button type="submit">Analyze</button>
         </form>
     </div>
 
-    {% if news_items %}
-        <div class="results-container">
-        <h3>Latest News</h3>
-        {% for item in news_items %}
-            <div class="news-item">
-                <h4>{{ item.title }}</h4>
-                <p>{{ item.description }}</p>
-                <small>Published: {{ item.published_date }}</small>
-            </div>
-        {% endfor %}
-        </div>
-    {% endif %}
+    <div id="results"></div>
+
 {% endblock %}

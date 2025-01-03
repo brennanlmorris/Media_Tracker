@@ -14,8 +14,15 @@ try:
         for item in news_items:
             print(f"Title: {item['title']}")
             print(f"Link: {item['link']}")
-            print(f"Published: {item['published']}")  # You might need to format the date
+
+            #Handle cases where 'published' might be missing:
+            if 'published' in item:
+                print(f"Published: {item['published']}")
+            else:
+                print("Published: Not available")
+
             print("---")
+
     else:
         print("No news items found.")
 except Exception as e:

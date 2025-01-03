@@ -1,11 +1,12 @@
 from flask import Flask
-from .routes.main import main
+
+app = Flask(__name__, template_folder='templates') # Initialize app here
 
 def create_app():
-    app = Flask(__name__,
-                template_folder='templates')
+    # Registers blueprints and configure app here
 
-    #Registers blueprints and configure app here
-    app.register_blueprint(main)
+    from .routes.main import main_bp  # Import routes here after app creation
+    app.register_blueprint(main_bp)
 
     return app
+
