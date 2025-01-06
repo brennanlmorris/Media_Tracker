@@ -16,12 +16,16 @@ class NewsService:
         """
         try:
             self.client.query = query
-
             self.client.language = 'english'
             self.client.location = "United States"
             self.client.topic = 'Business'
 
+            print(f"Query set: {self.client.query}")
+
             news_items = self.client.get_news()
+
+            print(f"News items returned: {news_items}")
+
             return news_items
         except Exception as e:
             print(f"An error occured in NewsService: {e}")
