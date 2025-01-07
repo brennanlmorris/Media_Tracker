@@ -36,8 +36,13 @@ function displayResults(articles) {
     articles.forEach(article => {
         const articleDiv = document.createElement('div');
         articleDiv.innerHTML = `
-            <h3><a href="${article.link}" target="_blank">${article.title}</a></h3>
-            <p>Published: ${article.published}</p>
+            <h3>${article.title}</h3>
+            <p>Sentiment:</p>
+            <ul>
+                <li>Positive: ${article.sentiment.positive.toFixed(2)}</li>
+                <li>Neutral: ${article.sentiment.neutral.toFixed(2)}</li>
+                <li>Negative: ${article.sentiment.negative.toFixed(2)}</li>
+            </ul>
         `;
         resultsDiv.appendChild(articleDiv);
     });

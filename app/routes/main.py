@@ -23,7 +23,7 @@ def analyze():
 
     processed_articles = []
     for article in articles:
-        sentiment = sentiment_service.analyze_sentiment(article['title'])
+        sentiment = sentiment_service.analyze_sentiment(article['title'][:512])
         processed_articles.append({
             "title": article['title'],
             "link": article['link'],

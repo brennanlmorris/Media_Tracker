@@ -1,32 +1,36 @@
-from gnewsclient import gnewsclient
+import requests
+from bs4 import BeautifulSoup
 
 class NewsService:
-    def __init__(self):
-        self.client = gnewsclient.NewsClient()
+    def fetch_google_news_headlines(self, query):
+
+        url = f"https://news.google.com/rss/search?q={query}+stock"
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                print(f"Failed to fetch Google News for {query}")
+                return []
+            soup = BeautifulSoup(response.content, 'xml')
+            return [item.title.text for item in soup.find_all('item')]
+        except Exception as e:
+            print(f"Error fetch Google News: {e}")
+            return []
 
     def get_news(self, query):
-        """
-        Fetches news articles for a given query.
 
-        Args:
-            query: The search query (company name or ticker).
-
-        Returns:
-            A list of news article dictionaries or None if an error occurs.
-        """
         try:
-            self.client.query = query
-            self.client.language = 'english'
-            self.client.location = "United States"
-            self.client.topic = 'Business'
+            headlines = self.fetch_google_news_headlines(query)
+            articles = []
+            for headline in headlines:
+                article = {
+                    'title': headline,
+                    'link': '',
+                    'published': 'Not available'
+                }
+                articles.append(article)
 
-            print(f"Query set: {self.client.query}")
-
-            news_items = self.client.get_news()
-
-            print(f"News items returned: {news_items}")
-
-            return news_items
+            print(f"Articles fetched: {articles}")
+            return articles
         except Exception as e:
             print(f"An error occured in NewsService: {e}")
             return None
