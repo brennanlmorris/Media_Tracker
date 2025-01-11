@@ -1,3 +1,4 @@
+from typing import Dict, List, Any
 from flask import Blueprint, render_template, request, jsonify
 from app import get_sentiment_service
 from app.services.news_service import NewsService
@@ -11,7 +12,7 @@ def index():
     return render_template("index.html")
 
 @main_bp.route("/analyze", methods=["POST"])
-def analyze():
+def analyze() -> jsonify:
     sentiment_service = get_sentiment_service()
     query = request.form.get("query")
     if not query:
@@ -21,9 +22,9 @@ def analyze():
     if articles is None:
         return jsonify({"error": "Error fetching news"}), 500
 
-    processed_articles = []
+    processed_articles: List[Dict[str, Any]] = []
     for article in articles:
-        sentiment = sentiment_service.analyze_sentiment(article['title'][:512])
+        sentiment: Dict[str, float] = sentiment_service.analyze_sentiment(article['title'][:512])
         processed_articles.append({
             "title": article['title'],
             "link": article['link'],
