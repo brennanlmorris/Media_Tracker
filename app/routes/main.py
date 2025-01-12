@@ -15,22 +15,29 @@ def index():
 def analyze() -> jsonify:
     sentiment_service = get_sentiment_service()
     query = request.form.get("query")
+    print(f"Received query: {query}")
+
     if not query:
         return jsonify({"error": "No query provided"}), 400
 
     articles = news_service.get_news(query)
+    print(f"Articles fetched: {articles}")
+
     if articles is None:
         return jsonify({"error": "Error fetching news"}), 500
 
     processed_articles: List[Dict[str, Any]] = []
     for article in articles:
-        sentiment: Dict[str, float] = sentiment_service.analyze_sentiment(article['title'][:512])
+        print(f"Analyzing sentiment for: {articles}")
+        sentiment: Dict[str, float] = sentiment_service.analyze_sentiment(article[:512])
+        print(f"Sentiment: {sentiment}")
+
         processed_articles.append({
-            "title": article['title'],
-            "link": article['link'],
-            "published": article.get('published', 'Not available'),
+            "title": article,
+            "link": '',
+            "published": 'Not available',
             "sentiment": sentiment
         })
 
+    print(f"Returning processed articles: {processed_articles}")
     return jsonify(processed_articles)
-

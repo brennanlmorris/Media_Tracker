@@ -10,7 +10,12 @@ document.getElementById('searchForm').addEventListener('submit', function(e) {
         },
         body: 'query=' + encodeURIComponent(query)
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             displayResults(data);
         })
@@ -40,7 +45,6 @@ document.getElementById('searchForm').addEventListener('submit', function(e) {
  * Display the news article results on the page.
  * @param {Article[]} articles - The array of article objects.
  */
-
 function displayResults(articles) {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = ''; // Clear previous results
@@ -56,19 +60,6 @@ function displayResults(articles) {
     }
 
     articles.forEach(article => {
-        // Type checking for article
-        if (typeof article !== 'object' || article === null || !('title' in article)) {
-            console.error('Invalid article format:', article);
-            return; // Skip this article
-        }
-
-        // Type checking for sentiment
-        if (typeof article.sentiment !== 'object' || article.sentiment === null ||
-            !('positive' in article.sentiment) || !('neutral' in article.sentiment) || !('negative' in article.sentiment)) {
-            console.error('Invalid sentiment format:', article.sentiment);
-            return; // Skip this article
-        }
-
         const articleDiv = document.createElement('div');
         articleDiv.innerHTML = `
             <h3>${article.title}</h3>

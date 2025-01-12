@@ -11,7 +11,15 @@ class NewsService:
                 print(f"Failed to fetch Google News for {query}")
                 return []
             soup = BeautifulSoup(response.content, 'xml')
-            return [item.title.text for item in soup.find_all('item')]
+            articles = []
+            for item in soup.find_all('item'):
+                article = {
+                    'title': item.title.text,
+                    'link': item.link.text,
+                    'published': 'Not available'
+                }
+                articles.append(article)
+            return articles
         except Exception as e:
             print(f"Error fetch Google News: {e}")
             return []
@@ -22,11 +30,7 @@ class NewsService:
             headlines = self.fetch_google_news_headlines(query)
             articles = []
             for headline in headlines:
-                article = {
-                    'title': headline,
-                    'link': '',
-                    'published': 'Not available'
-                }
+                article = headline['title']
                 articles.append(article)
 
             print(f"Articles fetched: {articles}")
