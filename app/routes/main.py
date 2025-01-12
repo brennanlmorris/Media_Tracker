@@ -27,10 +27,17 @@ def analyze() -> jsonify:
         return jsonify({"error": "Error fetching news"}), 500
 
     processed_articles: List[Dict[str, Any]] = []
+    total_positive = 0
+    total_neutral = 0
+    total_negative = 0
     for article in articles:
         print(f"Analyzing sentiment for: {articles}")
         sentiment: Dict[str, float] = sentiment_service.analyze_sentiment(article[:512])
         print(f"Sentiment: {sentiment}")
+
+        total_positive += sentiment['positive']
+        total_neutral += sentiment['neutral']
+        total_negative += sentiment['negative']
 
         processed_articles.append({
             "title": article,
@@ -39,5 +46,15 @@ def analyze() -> jsonify:
             "sentiment": sentiment
         })
 
+    average_sentiment = {}
+    num_articles = len(processed_articles)
+    if num_articles > 0:
+        average_sentiment = {
+            "positive": total_positive / num_articles,
+            "neutral": total_neutral / num_articles,
+            "negative": total_negative / num_articles
+        }
+
     print(f"Returning processed articles: {processed_articles}")
-    return jsonify(processed_articles)
+    print(f"Reutrning average sentiment: {average_sentiment}")
+    return jsonify({'articles': processed_articles, 'average_sentiment': average_sentiment})
