@@ -61,6 +61,7 @@ function displayResults(articles) {
 
     articles.forEach(article => {
         const articleDiv = document.createElement('div');
+        articleDiv.classList.add('article');
         articleDiv.innerHTML = `
             <h3>${article.title}</h3>
             <p>Sentiment:</p>
