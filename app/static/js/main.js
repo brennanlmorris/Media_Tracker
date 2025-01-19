@@ -1,35 +1,5 @@
-document.getElementById('searchForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const query = document.getElementById('query').value;
-
-    fetch('/analyze', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'query=' + encodeURIComponent(query)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Data received:', data);
-
-        displayResults(data);
-
-        if (data.average_sentiment) {
-            renderOrUpdateChart(data.average_sentiment);
-        }
-    })
-    .catch(error => {
-        console.error('Fetch Error:', error);
-        displayResults({ error: 'An error occurred while fetching data.' });
-    });
-});
+// Global variable to keep track of the chart instance
+let sentimentChart = null;
 
 /**
  * Represents a news article with sentiment data.
@@ -50,49 +20,45 @@ document.getElementById('searchForm').addEventListener('submit', function(e) {
 
 /**
  * Display the news article results on the page.
- * @param {Object} data - The data object received from the server.
- * @param {Article[]} [data.articles] - The array of article objects (only present if no error).
- * @param {string} [data.error] - The error message (only present if an error occurred).
+ * @param {Article[]|{error: string}} data - Either an array of Article objects or an error object.
  */
 function displayResults(data) {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = ''; // Clear previous results
 
-    // Handle error case
+    // Handle case where data is an error object
     if (data.error) {
         resultsDiv.innerHTML = '<p>' + data.error + '</p>';
         return;
     }
 
-    // Check if 'data.articles' exists and is an array before proceeding
-    if (data.articles && Array.isArray(data.articles)) {
-        // Iterate over the articles array
-        data.articles.forEach(article => {
-            const articleDiv = document.createElement('div');
-            articleDiv.classList.add('article');
-            articleDiv.innerHTML = `
-                <h3>${article.title}</h3>
-                <p>Sentiment:</p>
-                <ul>
-                    <li>Positive: ${article.sentiment.positive.toFixed(2)}</li>
-                    <li>Neutral: ${article.sentiment.neutral.toFixed(2)}</li>
-                    <li>Negative: ${article.sentiment.negative.toFixed(2)}</li>
-                </ul>
-            `;
-            resultsDiv.appendChild(articleDiv);
-        });
-    } else {
-        // Handle unexpected data format
-        resultsDiv.innerHTML = '<p>No articles found or unexpected data format received.</p>';
-        console.error('Unexpected data format:', data);
+    // Handle case where data is an empty array or null
+    if (!data || data.length === 0) {
+        resultsDiv.innerHTML = '<p>No articles found.</p>';
+        return;
     }
+
+    // Iterate over the articles array
+    data.forEach(article => {
+        const articleDiv = document.createElement('div');
+        articleDiv.classList.add('article');
+        articleDiv.innerHTML = `
+            <h3>${article.title}</h3>
+            <p>Sentiment:</p>
+            <ul>
+                <li>Positive: ${article.sentiment.positive.toFixed(2)}</li>
+                <li>Neutral: ${article.sentiment.neutral.toFixed(2)}</li>
+                <li>Negative: ${article.sentiment.negative.toFixed(2)}</li>
+            </ul>
+        `;
+        resultsDiv.appendChild(articleDiv);
+    });
 }
 
 /**
- * @type {Chart}
+ * Renders or updates the sentiment chart.
+ * @param {{positive: number, neutral: number, negative: number}} averageSentiment - The average sentiment scores.
  */
-let sentimentChart = null;
-
 function renderOrUpdateChart(averageSentiment) {
     const ctx = document.getElementById('sentimentChart').getContext('2d');
 
@@ -131,6 +97,48 @@ function renderOrUpdateChart(averageSentiment) {
     } else {
         // If the chart exists, update its data
         sentimentChart.data.datasets[0].data = [averageSentiment.positive, averageSentiment.neutral, averageSentiment.negative];
-        sentimentChart.update();
+        sentimentChart.update(); // Tell Chart.js to redraw the chart with the new data
     }
 }
+
+// Attach the event listener to the form's submit event
+document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent the default form submission
+
+    const query = document.getElementById('query').value;
+
+    fetch('/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'query=' + encodeURIComponent(query)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Data received:', data);
+
+        if (data.error) {
+            console.error('Error from server:', data.error);
+            displayResults(data); // Display the error
+        } else if (data.articles && Array.isArray(data.articles)) {
+            displayResults(data.articles); // Display the articles
+
+            if (data.average_sentiment) {
+                renderOrUpdateChart(data.average_sentiment); // Render or update the chart
+            }
+        } else {
+            console.error('No articles found or data.articles is not an array.');
+            displayResults({ error: 'No articles found.' });
+        }
+    })
+    .catch(error => {
+        console.error('Fetch Error:', error);
+        displayResults({ error: 'An error occurred while fetching data.' });
+    });
+});
