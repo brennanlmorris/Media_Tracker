@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="search-container">
-        <h2>Enter Company Name or Ticker</h2>
-        <form id="searchForm" method="POST" action="/analyze">
-            <label for="query">Company Name:</label>
-            <input type="text"
-                   id="query"
-                   name="query"
-                   placeholder="e.g., Apple or AAPL"
-                   aria-label="Company Name">
-            <button type="submit">Analyze</button>
-        </form>
-        <canvas id="sentimentChart" width="400" height="400"></canvas>
-    </div>
+<div class="search-container">
+    <h2>Enter Company Name or Ticker</h2>
+    <form id="searchForm" method="POST" action="/analyze">
+        <label for="query">Company Name:</label>
+        <input type="text"
+               id="query"
+               name="query"
+               placeholder="e.g., Apple or AAPL"
+               aria-label="Company Name">
+        <button type="submit">Analyze</button>
+    </form>
+    <canvas id="sentimentChart" width="400" height="400"></canvas> </div>
 
-    <div id="results"></div>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
+<div id="results"></div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

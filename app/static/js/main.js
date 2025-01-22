@@ -97,7 +97,7 @@ function renderOrUpdateChart(averageSentiment) {
     } else {
         // If the chart exists, update its data
         sentimentChart.data.datasets[0].data = [averageSentiment.positive, averageSentiment.neutral, averageSentiment.negative];
-        sentimentChart.update(); // Tell Chart.js to redraw the chart with the new data
+        sentimentChart.update();
     }
 }
 
