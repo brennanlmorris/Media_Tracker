@@ -12,8 +12,10 @@
                aria-label="Company Name">
         <button type="submit">Analyze</button>
     </form>
-    <canvas id="sentimentChart" width="400" height="400"></canvas> </div>
 
-<div id="results"></div>
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <div id="averageSentiment" class="sentiment-boxes"></div>
+
+</div><div id="results"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

@@ -1,5 +1,46 @@
-// Global variable to keep track of the chart instance
-let sentimentChart = null;
+document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const query = document.getElementById('query').value;
+
+    fetch('/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'query=' + encodeURIComponent(query)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Data received:', data);
+
+        if (data.error) {
+            console.error('Error from server:', data.error);
+            displayResults(data);
+            return;
+        }
+
+        if (data.articles && Array.isArray(data.articles)) {
+            displayResults(data.articles);
+
+            if (data.average_sentiment) {
+                displayAverageSentiment(data.average_sentiment);
+            }
+        } else {
+            console.error('No articles found or data.articles is not an array.');
+            displayResults({ error: 'No articles found.' });
+        }
+    })
+    .catch(error => {
+        console.error('Fetch Error:', error);
+        displayResults({ error: 'An error occurred while fetching data.' });
+    });
+});
 
 /**
  * Represents a news article with sentiment data.
@@ -56,89 +97,26 @@ function displayResults(data) {
 }
 
 /**
- * Renders or updates the sentiment chart.
+ * Display the average sentiment scores in boxes.
  * @param {{positive: number, neutral: number, negative: number}} averageSentiment - The average sentiment scores.
  */
-function renderOrUpdateChart(averageSentiment) {
-    const ctx = document.getElementById('sentimentChart').getContext('2d');
+function displayAverageSentiment(averageSentiment) {
+    const sentimentDiv = document.getElementById('averageSentiment');
+    sentimentDiv.innerHTML = ''; // Clear previous content
 
-    if (!sentimentChart) {
-        // If the chart does not exist, create it
-        sentimentChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Positive', 'Neutral', 'Negative'],
-                datasets: [{
-                    data: [averageSentiment.positive, averageSentiment.neutral, averageSentiment.negative],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(255, 99, 132, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(255, 99, 132, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Average Sentiment'
-                    }
-                }
-            }
-        });
-    } else {
-        // If the chart exists, update its data
-        sentimentChart.data.datasets[0].data = [averageSentiment.positive, averageSentiment.neutral, averageSentiment.negative];
-        sentimentChart.update();
-    }
+    const positiveBox = document.createElement('div');
+    positiveBox.classList.add('sentiment-box', 'positive');
+    positiveBox.innerHTML = `<h2>Positive</h2><p>${(averageSentiment.positive * 100).toFixed(0)}%</p>`;
+
+    const neutralBox = document.createElement('div');
+    neutralBox.classList.add('sentiment-box', 'neutral');
+    neutralBox.innerHTML = `<h2>Neutral</h2><p>${(averageSentiment.neutral * 100).toFixed(0)}%</p>`;
+
+    const negativeBox = document.createElement('div');
+    negativeBox.classList.add('sentiment-box', 'negative');
+    negativeBox.innerHTML = `<h2>Negative</h2><p>${(averageSentiment.negative * 100).toFixed(0)}%</p>`;
+
+    sentimentDiv.appendChild(positiveBox);
+    sentimentDiv.appendChild(neutralBox);
+    sentimentDiv.appendChild(negativeBox);
 }
-
-// Attach the event listener to the form's submit event
-document.getElementById('searchForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevent the default form submission
-
-    const query = document.getElementById('query').value;
-
-    fetch('/analyze', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'query=' + encodeURIComponent(query)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Data received:', data);
-
-        if (data.error) {
-            console.error('Error from server:', data.error);
-            displayResults(data); // Display the error
-        } else if (data.articles && Array.isArray(data.articles)) {
-            displayResults(data.articles); // Display the articles
-
-            if (data.average_sentiment) {
-                renderOrUpdateChart(data.average_sentiment); // Render or update the chart
-            }
-        } else {
-            console.error('No articles found or data.articles is not an array.');
-            displayResults({ error: 'No articles found.' });
-        }
-    })
-    .catch(error => {
-        console.error('Fetch Error:', error);
-        displayResults({ error: 'An error occurred while fetching data.' });
-    });
-});
